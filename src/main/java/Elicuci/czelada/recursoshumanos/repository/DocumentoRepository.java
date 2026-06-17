@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface DocumentoRepository extends JpaRepository<Documento, Long> {
+
+    List<Documento> findByEmpleado_IdEmpleado(Long empleadoId);
     boolean existsByEmpleadoIdAndtipoDocumento(Long empleadoId, TipoDocumento tipoDocumento);
     List<Documento> findByEmpleadoIdAndTipoDocumento(
             Long empleadoId,
