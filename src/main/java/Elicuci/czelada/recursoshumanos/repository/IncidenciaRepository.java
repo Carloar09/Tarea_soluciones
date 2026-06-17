@@ -11,29 +11,39 @@ import java.util.List;
 
 @Repository
 public interface IncidenciaRepository extends JpaRepository<Incidencia, Long> {
-        // va a buscar todas las inicidenias del empleado en base al id
-        List<Incidencia> findByEmpleadoId(Long empleadoId);
 
+        @Query("SELECT i FROM Incidencia i WHERE i.empleado.idEmpleado = :empleadoId")
+        List<Incidencia> findByEmpleadoId(@Param("empleadoId") Long empleadoId);
 
-        // para ver las incidencias actuales
-        long countByFechaBetween(LocalDate inicio, LocalDate fin);
+        // Contar incidencias entre fechas
+        @Query("SELECT COUNT(i) FROM Incidencia i " +
+                "WHERE i.fecha BETWEEN :inicio AND :fin")
+        long countByFechaBetween(
+                @Param("inicio") LocalDate inicio,
+                @Param("fin") LocalDate fin);
 
-        // Incidencias del mes filtradas por sucursal
-        @Query("SELECT COUNT(i) FROM Incidencia i JOIN i.empleado e JOIN e.contratos c " +
-                "WHERE i.fecha BETWEEN :inicio AND :fin AND c.sucursal.id = :sucursalId")
+        // Contar incidencias del mes por sucursal
+        @Query("SELECT COUNT(i) FROM Incidencia i " +
+                "JOIN i.empleado e JOIN e.contratos c " +
+                "WHERE i.fecha BETWEEN :inicio AND :fin " +
+                "AND c.sucursal.idSucursal = :sucursalId")
         long countByFechaBetweenAndSucursalId(
                 @Param("inicio") LocalDate inicio,
                 @Param("fin") LocalDate fin,
                 @Param("sucursalId") Long sucursalId);
 
         // Incidencias GRAVE o MODERADA (por resolver)
-        @Query("SELECT COUNT(i) FROM Incidencia i WHERE i.severidad IN ('GRAVE', 'MODERADA')")
+        @Query("SELECT COUNT(i) FROM Incidencia i " +
+                "WHERE i.severidad IN ('GRAVE', 'MODERADA')")
         long countPorResolver();
 
-        @Query("SELECT COUNT(i) FROM Incidencia i JOIN i.empleado e JOIN e.contratos c " +
-                "WHERE i.severidad IN ('GRAVE', 'MODERADA') AND c.sucursal.id = :sucursalId")
-
+        // Incidencias por resolver filtradas por sucursal
+        @Query("SELECT COUNT(i) FROM Incidencia i " +
+                "JOIN i.empleado e JOIN e.contratos c " +
+                "WHERE i.severidad IN ('GRAVE', 'MODERADA') " +
+                "AND c.sucursal.idSucursal = :sucursalId")
         long countPorResolverBySucursal(@Param("sucursalId") Long sucursalId);
 
+        // Últimas 10 para actividad reciente del dashboard
         List<Incidencia> findTop10ByOrderByFechaDesc();
 }

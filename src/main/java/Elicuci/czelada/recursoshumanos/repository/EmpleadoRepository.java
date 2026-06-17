@@ -13,21 +13,29 @@ import java.util.Optional;
 @Repository
 public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
 
-
     Optional<Empleado> findByDni(String dni);
 
-    @Query("SELECT DISTINCT e FROM Empleado e JOIN e.contratos c WHERE c.sucursal.id = :sucursalId")
-    List<Empleado> findBySucursalId(@Param("sucursalId") Long sucursalId);
+    // ── Contar empleados de una sucursal ────────────────
+    // Spring no puede hacer esto automático porque sucursalId
+    // está en Contrato, no en Empleado. Usamos @Query
+    @Query("SELECT COUNT(DISTINCT e) FROM Empleado e " +
+            "JOIN e.contratos c WHERE c.sucursal.idSucursal = :sucursalId")
+    long countBySucursalId(@Param("sucursalId") Long sucursalId);
 
-    //nos va a servir apra contar empleados por sucursal
-    long countBySucursalId(Long sucursalId);
+    // ── Contar por estado ───────────────────────────────
+    long countByEstadoEmpleado(EstadoEmpleado estado);
 
-    // nos va  a servir para contar por estado
-    long countByEstadoEmpleado(EstadoEmpleado estadoEmpleado);
-    @Query("SELECT COUNT(DISTINCT e) FROM Empleado e JOIN e.contratos c " +
-            "WHERE e.estadoEmpleado = :estado AND c.sucursal.id = :sucursalId")
+    // ── Contar por estado Y sucursal ────────────────────
+    @Query("SELECT COUNT(DISTINCT e) FROM Empleado e " +
+            "JOIN e.contratos c " +
+            "WHERE e.estadoEmpleado = :estado " +
+            "AND c.sucursal.idSucursal = :sucursalId")
     long countByEstadoEmpleadoAndSucursalId(
             @Param("estado") EstadoEmpleado estado,
             @Param("sucursalId") Long sucursalId);
 
+    // ── Listar empleados de una sucursal ────────────────
+    @Query("SELECT DISTINCT e FROM Empleado e " +
+            "JOIN e.contratos c WHERE c.sucursal.idSucursal = :sucursalId")
+    List<Empleado> findBySucursalId(@Param("sucursalId") Long sucursalId);
 }

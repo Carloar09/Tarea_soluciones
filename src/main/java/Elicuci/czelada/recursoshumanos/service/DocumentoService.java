@@ -83,7 +83,7 @@ public class DocumentoService {
         List<Documento> documentos = tipoDocumento != null
                 ? documentoRepository.findByEmpleadoIdAndTipoDocumento(
                 empleado.getIdEmpleado(), tipoDocumento)
-                : documentoRepository.findByEmpleado_IdEmpleado(empleado.getIdEmpleado());
+                : documentoRepository.findByEmpleadoId(empleado.getIdEmpleado());
 
         return documentos.stream()
                 .map(this::mapToResponseDTO)

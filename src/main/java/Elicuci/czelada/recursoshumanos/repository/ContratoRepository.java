@@ -1,5 +1,6 @@
 package Elicuci.czelada.recursoshumanos.repository;
 
+
 import Elicuci.czelada.recursoshumanos.entity.Contrato;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,21 +12,24 @@ import java.util.List;
 
 @Repository
 public interface ContratoRepository extends JpaRepository<Contrato, Long> {
-    //Buscar los contratos de un empleado por su id
-    List<Contrato> findByEmpleadoId(Long empleadoId);
 
-    // Contratos que vencen entre hoy y los próximos 90 días
-    @Query("SELECT c FROM Contrato c WHERE c.fechaVencimiento BETWEEN :hoy AND :limite")
+    // Usamos @Query porque el campo se llama idEmpleado, no id
+    @Query("SELECT c FROM Contrato c WHERE c.empleado.idEmpleado = :empleadoId")
+    List<Contrato> findByEmpleadoId(@Param("empleadoId") Long empleadoId);
+
+    // Contratos próximos a vencer (todos)
+    @Query("SELECT c FROM Contrato c " +
+            "WHERE c.fechaVencimiento BETWEEN :hoy AND :limite")
     List<Contrato> findProximosAVencer(
             @Param("hoy") LocalDate hoy,
             @Param("limite") LocalDate limite);
 
-    // Lo mismo filtrado por sucursal
-    @Query("SELECT c FROM Contrato c WHERE c.fechaVencimiento BETWEEN :hoy AND :limite " +
-            "AND c.sucursal.id = :sucursalId")
+    // Contratos próximos a vencer filtrados por sucursal
+    @Query("SELECT c FROM Contrato c " +
+            "WHERE c.fechaVencimiento BETWEEN :hoy AND :limite " +
+            "AND c.sucursal.idSucursal = :sucursalId")
     List<Contrato> findProximosAVencerBySucursal(
             @Param("hoy") LocalDate hoy,
             @Param("limite") LocalDate limite,
             @Param("sucursalId") Long sucursalId);
 }
-
