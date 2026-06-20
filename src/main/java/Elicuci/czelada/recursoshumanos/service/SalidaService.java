@@ -49,7 +49,7 @@ public class SalidaService {
     }
     //listamos todas las salidad
     public List<SalidaResponseDTO> listarSalidas() {
-        return salidaRepository.findAllByOrderBySalidaDesc()
+        return salidaRepository.findAllByOrderByFechaSalidaDesc()
                 .stream()
                 //aqui donde conveirte los datoas en dto
                 //la otra manera seria (salida->mapToResponseDTO(Salida))
