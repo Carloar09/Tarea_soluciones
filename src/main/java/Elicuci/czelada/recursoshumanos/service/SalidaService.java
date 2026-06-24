@@ -45,6 +45,8 @@ public class SalidaService {
         salida.setObservaciones(salidaRequestDTO.getObservaciones());
         //guardamos los datos de la saldia
         Salida salidaGuardada = salidaRepository.save(salida);
+        empleado.setEstadoEmpleado(EstadoEmpleado.EX_EMPLEADO);
+        empleadoRepository.save(empleado);
         return  mapToResponseDTO(salidaGuardada);
     }
     //listamos todas las salidad

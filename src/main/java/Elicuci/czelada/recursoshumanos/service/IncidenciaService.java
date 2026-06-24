@@ -24,7 +24,7 @@ public class IncidenciaService {
     @Transactional
     public IncidenciaResponseDTO registrarIncidencia(IncidenciaRequestDTO incidenciaRequestDTO) {
         Empleado empleado =empleadoRepository.findByDni(incidenciaRequestDTO.getDniEmpleado())
-                .orElseThrow(()->new RuntimeException("Empleado no encontrado con DNI: "+ incidenciaRequestDTO.getDniEmpleado());
+                .orElseThrow(()->new RuntimeException("Empleado no encontrado con DNI: "+ incidenciaRequestDTO.getDniEmpleado()));
         //creamos la entidad
         Incidencia incidencia = new Incidencia();
         incidencia.setEmpleado(empleado);

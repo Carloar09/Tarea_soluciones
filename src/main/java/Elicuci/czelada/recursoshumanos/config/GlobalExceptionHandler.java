@@ -16,10 +16,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ─────────────────────────────────────────────────
     // RuntimeException — El más común
     // Ej: "Empleado no encontrado con DNI: 123"
-    // ─────────────────────────────────────────────────
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(
             RuntimeException ex) {
@@ -32,10 +30,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // ─────────────────────────────────────────────────
     // Errores de validación — @Valid falla
     // Ej: campo obligatorio vacío, email inválido
-    // ─────────────────────────────────────────────────
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex) {
@@ -57,9 +53,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // ─────────────────────────────────────────────────
     // Cualquier otro error no controlado
-    // ─────────────────────────────────────────────────
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(
             Exception ex) {
