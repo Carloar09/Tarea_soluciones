@@ -36,6 +36,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(
             @Valid @RequestBody LoginRequestDTO request) {
+            System.out.println("ENTRO AL CONTROLLER LOGIN");
         return ResponseEntity.ok(authService.login(request));
     }
 }
