@@ -1,6 +1,7 @@
 package Elicuci.czelada.recursoshumanos.security;
 
 import Elicuci.czelada.recursoshumanos.repository.UsuarioRepository;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,38 +28,55 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            FilterChain filterChain)
+            throws ServletException, IOException {
 
-        // 1. Leemos el header Authorization
+        String path = request.getServletPath();
+
+        // No validar JWT en login ni register
+        if (path.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        // 2. Si no tiene token, dejamos pasar (Security decidirá si bloquea)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. Extraemos el token (quitamos "Bearer ")
-        String token = authHeader.substring(7);
+        try {
 
-        // 4. Extraemos el email del token
-        String email = jwtService.extraerEmail(token);
+            String token = authHeader.substring(7);
+            String email = jwtService.extraerEmail(token);
 
-        // 5. Si el email existe y no hay sesión activa, autenticamos
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            usuarioRepository.findByEmail(email).ifPresent(usuario -> {
-                if (jwtService.esValido(token, email) && usuario.isActivo()) {
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    new User(email, "", Collections.emptyList()),
-                                    null,
-                                    Collections.emptyList()
-                            );
-                    auth.setDetails(new WebAuthenticationDetailsSource()
-                            .buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            });
+            if (email != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                usuarioRepository.findByEmail(email).ifPresent(usuario -> {
+
+                    if (jwtService.esValido(token, email) && usuario.isActivo()) {
+
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        new User(email, "", Collections.emptyList()),
+                                        null,
+                                        Collections.emptyList());
+
+                        auth.setDetails(
+                                new WebAuthenticationDetailsSource()
+                                        .buildDetails(request));
+
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(auth);
+                    }
+                });
+            }
+
+        } catch (JwtException e) {
+            // Token vencido o inválido.
+            // Se ignora y continúa la petición.
         }
 
         filterChain.doFilter(request, response);
