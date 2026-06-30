@@ -46,5 +46,4 @@ public class EmpleadoController {
             @RequestParam(required = false) Long sucursalId) {
         return ResponseEntity.ok(empleadoService.listarEmpleados(sucursalId));
     }
-
 }
